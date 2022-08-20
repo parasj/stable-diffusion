@@ -175,6 +175,7 @@ def main():
         default="autocast"
     )
     opt = parser.parse_args()
+    print(f"Prompt: {opt.prompt}")
 
     if opt.laion400m:
         print("Falling back to LAION 400M model...")
