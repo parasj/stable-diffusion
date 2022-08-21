@@ -48,6 +48,7 @@ OUT_DIR=/data/$USER/stable_diffusion_results/`date +%Y%m%d%H%M%S`
 mkdir -p $OUT_DIR
 export PWD=`pwd`
 export PROMPT_NO_SPACE=`echo $PROMPT | sed 's/ /_/g'`
+
 trap 'echo "# $BASH_COMMAND"' DEBUG
 docker build -t stablediffusion .
 docker run -t --rm --init \
@@ -61,6 +62,9 @@ docker run -t --rm --init \
   -v "$OUT_DIR:/results" \
   --env="PYTHONPATH=/app" \
   stablediffusion python scripts/txt2img.py --outdir /results --precision autocast --plms --n_iter 1 --n_samples $N --scale $CFGSCALE --ddim_steps $STEPS --H $HEIGHT --W $WIDTH --prompt "$PROMPT"
+trap - DEBUG
+
 mkdir -p $HOME/stable_diffusion_results/all_prompts
 cp $OUT_DIR/grid-0000.png $HOME/stable_diffusion_results/all_prompts/${PROMPT_NO_SPACE}.${N}_${STEPS}_${HEIGHT}x${WIDTH}.png
-~/bin/notify.py "$PROMPT done"
+URL=$(./paras_scripts/imgur.sh $OUT_DIR/grid-0000.png)
+~/bin/notify.py "$PROMPT done: $URL"
